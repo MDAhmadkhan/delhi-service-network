@@ -37,6 +37,8 @@ test("server-renders the Delhi Service Network homepage", async () => {
   assert.match(html, /Service chahiye\? Verified vendor jaldi connect hoga/);
   assert.match(html, /Book Service/);
   assert.match(html, /Join as Vendor/);
+  assert.match(html, /Track your booking/);
+  assert.match(html, /Accept and manage leads/);
   assert.match(html, /Admin operations/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton|codex-preview/i);
 });

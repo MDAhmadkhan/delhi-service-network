@@ -39,6 +39,8 @@ export default function Home() {
   const [notice, setNotice] = useState("System ready. Lead ya vendor submit karo.");
   const [adminOpen, setAdminOpen] = useState(false);
   const [serviceQuery, setServiceQuery] = useState("");
+  const [trackingPhone, setTrackingPhone] = useState("");
+  const [vendorPhone, setVendorPhone] = useState("");
 
   async function loadData() {
     const [leadResponse, vendorResponse] = await Promise.all([fetch("/api/leads"), fetch("/api/vendors")]);
@@ -68,6 +70,14 @@ export default function Home() {
     ["Completed", leads.filter((lead) => lead.status === "Completed").length],
   ];
   const filteredServices = serviceCards.filter(([name, copy]) => `${name} ${copy}`.toLowerCase().includes(serviceQuery.toLowerCase()));
+  const trackedBookings = leads.filter((lead) => trackingPhone && lead.phone.includes(trackingPhone.trim()));
+  const vendorProfile = vendors.find((vendor) => vendor.phone.includes(vendorPhone.trim()));
+  const vendorJobs = vendorPhone
+    ? leads.filter((lead) => {
+        if (!vendorProfile) return false;
+        return lead.service === vendorProfile.service && (lead.assignedVendor === vendorProfile.businessName || lead.assignedVendor === "Auto match ready");
+      })
+    : [];
 
   async function submitLead(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -108,8 +118,8 @@ export default function Home() {
     event.currentTarget.reset();
   }
 
-  async function updateLead(lead: Lead, status: string, customerRating = 0) {
-    const assignedVendor = matchedVendor?.businessName ?? lead.assignedVendor;
+  async function updateLead(lead: Lead, status: string, customerRating = 0, vendorName?: string) {
+    const assignedVendor = vendorName ?? matchedVendor?.businessName ?? lead.assignedVendor;
     const response = await fetch("/api/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: lead.id, status, assignedVendor, customerRating }) });
     if (response.ok) {
       const data = await response.json();
@@ -183,6 +193,28 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2">
           <div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Before technician arrives</p><h2 className="mt-2 text-3xl font-black">Customer ko clear preparation list</h2><p className="mt-4 leading-7 text-[#4d5a51]">Booking ke baad customer ko batao kya ready rakhna hai. Isse cancellations kam aur service speed better hoti hai.</p></div>
           <div className="grid gap-3 sm:grid-cols-2">{["Working plug point", "Ladder or stool", "Clear access area", "Issue photo optional"].map((item) => <div key={item} className="rounded border border-[#dfe4dc] bg-[#f7f8f5] p-4 font-black">{item}</div>)}</div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2">
+        <div className="rounded border border-[#dfe4dc] bg-white p-5">
+          <p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Customer side</p>
+          <h2 className="mt-2 text-3xl font-black">Track your booking</h2>
+          <p className="mt-3 leading-7 text-[#637067]">Customer apna mobile number dal kar booking ka status, vendor aur slot dekh sakta hai.</p>
+          <input value={trackingPhone} onChange={(event) => setTrackingPhone(event.target.value)} className="mt-5 w-full rounded border border-[#ccd5ce] p-3" placeholder="Enter phone number" />
+          <div className="mt-4 grid gap-3">
+            {(trackedBookings.length ? trackedBookings : seedLeads.slice(0, 1)).map((lead) => <div key={lead.id} className="rounded bg-[#f7f8f5] p-4"><div className="flex items-center justify-between gap-3"><strong>{lead.service}</strong><span className="rounded bg-[#0d4f3c] px-3 py-1 text-xs font-black text-white">{lead.status}</span></div><p className="mt-2 text-sm text-[#637067]">{lead.packageName} - {lead.timeSlot}</p><p className="text-sm text-[#637067]">Vendor: {lead.assignedVendor}</p></div>)}
+          </div>
+        </div>
+
+        <div className="rounded border border-[#dfe4dc] bg-white p-5">
+          <p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Vendor side</p>
+          <h2 className="mt-2 text-3xl font-black">Accept and manage leads</h2>
+          <p className="mt-3 leading-7 text-[#637067]">Vendor WhatsApp number se apne matching leads dekh sakta hai aur accept/reject kar sakta hai.</p>
+          <input value={vendorPhone} onChange={(event) => setVendorPhone(event.target.value)} className="mt-5 w-full rounded border border-[#ccd5ce] p-3" placeholder="Vendor phone, try 9876500000" />
+          <div className="mt-4 grid gap-3">
+            {(vendorJobs.length ? vendorJobs : seedLeads.slice(0, 1)).map((lead) => <div key={lead.id} className="rounded bg-[#f7f8f5] p-4"><div className="flex items-center justify-between gap-3"><strong>{lead.service}</strong><span className="text-sm font-bold text-[#637067]">{lead.area}</span></div><p className="mt-2 text-sm text-[#637067]">{lead.packageName} - {lead.timeSlot}</p><p className="text-sm text-[#637067]">{lead.problem || "Customer details after accept"}</p><div className="mt-3 flex flex-wrap gap-2"><button onClick={() => updateLead(lead, "Accepted", 0, vendorProfile?.businessName)} className="rounded bg-[#0d4f3c] px-4 py-2 text-sm font-black text-white">Accept</button><button onClick={() => updateLead(lead, "On the way", 0, vendorProfile?.businessName)} className="rounded bg-[#eef3ec] px-4 py-2 text-sm font-black text-[#0d4f3c]">On the way</button><button onClick={() => updateLead(lead, "Cancelled", 0, vendorProfile?.businessName)} className="rounded bg-[#fff4df] px-4 py-2 text-sm font-black text-[#8a4d00]">Reject</button></div></div>)}
+          </div>
         </div>
       </section>
 
