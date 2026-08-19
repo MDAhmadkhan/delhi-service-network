@@ -30,11 +30,15 @@ export async function POST(request: Request) {
     const name = clean(payload.name);
     const phone = clean(payload.phone);
     const service = clean(payload.service);
+    const packageName = clean(payload.packageName) || "Basic Visit";
     const area = clean(payload.area);
+    const address = clean(payload.address);
+    const timeSlot = clean(payload.timeSlot) || "Anytime today";
+    const paymentMode = clean(payload.paymentMode) || "Cash after service";
     const problem = clean(payload.problem);
 
-    if (!name || !phone || !service || !area) {
-      return Response.json({ error: "Name, phone, service, and area are required." }, { status: 400 });
+    if (!name || !phone || !service || !area || !address) {
+      return Response.json({ error: "Name, phone, service, area, and address are required." }, { status: 400 });
     }
 
     const db = getDb();
@@ -44,7 +48,11 @@ export async function POST(request: Request) {
         name,
         phone,
         service,
+        packageName,
         area,
+        address,
+        timeSlot,
+        paymentMode,
         problem,
         createdAt: new Date(),
       })
@@ -62,8 +70,9 @@ export async function PATCH(request: Request) {
     const id = Number(payload.id);
     const status = clean(payload.status);
     const assignedVendor = clean(payload.assignedVendor);
+    const customerRating = Number(payload.customerRating);
 
-    if (!id || (!status && !assignedVendor)) {
+    if (!id || (!status && !assignedVendor && !customerRating)) {
       return Response.json({ error: "Lead id and an update are required." }, { status: 400 });
     }
 
@@ -73,6 +82,7 @@ export async function PATCH(request: Request) {
       .set({
         ...(status ? { status } : {}),
         ...(assignedVendor ? { assignedVendor } : {}),
+        ...(customerRating ? { customerRating } : {}),
       })
       .where(eq(leads.id, id))
       .returning();

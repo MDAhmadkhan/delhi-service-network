@@ -2,12 +2,15 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
-type Lead = { id: number; name: string; phone: string; service: string; area: string; problem: string; status: string; assignedVendor: string };
+type Lead = { id: number; name: string; phone: string; service: string; packageName: string; area: string; address: string; timeSlot: string; paymentMode: string; problem: string; status: string; assignedVendor: string; customerRating: number };
 type Vendor = { id: number; businessName: string; phone: string; service: string; areas: string; status: string; rating: number };
 
 const services = ["AC Repair", "RO Service", "Laptop Repair", "Mobile Repair", "Electrician", "Plumber", "Home Cleaning", "CCTV Install"];
 const areas = ["Rohini", "Dwarka", "Laxmi Nagar", "Karol Bagh", "Janakpuri", "Pitampura", "Saket", "Mayur Vihar", "Vasant Kunj", "Noida/Delhi NCR"];
-const statuses = ["New", "Assigned", "Contacted", "Completed", "Cancelled"];
+const statuses = ["New", "Assigned", "Accepted", "On the way", "Completed", "Cancelled"];
+const packages = ["Basic Visit - Rs 199", "Standard Service - Rs 499", "Deep Service - Rs 899", "Inspection first"];
+const slots = ["Anytime today", "Today 10 AM - 1 PM", "Today 2 PM - 5 PM", "Tomorrow 10 AM - 1 PM", "Tomorrow 2 PM - 5 PM"];
+const payments = ["Cash after service", "UPI after service", "Online payment later"];
 const serviceCards = [
   ["AC Repair", "Cooling, gas refill, service", "30-60 min"],
   ["RO Service", "Filter, leakage, installation", "45-90 min"],
@@ -20,8 +23,8 @@ const serviceCards = [
 ];
 
 const seedLeads: Lead[] = [
-  { id: 1001, name: "Demo Customer", phone: "9999999999", service: "AC Repair", area: "Rohini", problem: "Cooling kam hai", status: "New", assignedVendor: "Auto match ready" },
-  { id: 1002, name: "Sample Lead", phone: "8888888888", service: "RO Service", area: "Dwarka", problem: "Filter change", status: "Assigned", assignedVendor: "AquaFix Delhi" },
+  { id: 1001, name: "Demo Customer", phone: "9999999999", service: "AC Repair", packageName: "Standard Service - Rs 499", area: "Rohini", address: "Sector 7, Rohini", timeSlot: "Today 2 PM - 5 PM", paymentMode: "UPI after service", problem: "Cooling kam hai", status: "New", assignedVendor: "Auto match ready", customerRating: 0 },
+  { id: 1002, name: "Sample Lead", phone: "8888888888", service: "RO Service", packageName: "Basic Visit - Rs 199", area: "Dwarka", address: "Sector 12, Dwarka", timeSlot: "Tomorrow 10 AM - 1 PM", paymentMode: "Cash after service", problem: "Filter change", status: "Assigned", assignedVendor: "AquaFix Delhi", customerRating: 0 },
 ];
 const seedVendors: Vendor[] = [
   { id: 201, businessName: "AquaFix Delhi", phone: "9876543210", service: "RO Service", areas: "Dwarka, Janakpuri", status: "Verified", rating: 46 },
@@ -71,7 +74,11 @@ export default function Home() {
       name: String(form.get("name") ?? ""),
       phone: String(form.get("phone") ?? ""),
       service: selectedService,
+      packageName: String(form.get("packageName") ?? ""),
       area: selectedArea,
+      address: String(form.get("address") ?? ""),
+      timeSlot: String(form.get("timeSlot") ?? ""),
+      paymentMode: String(form.get("paymentMode") ?? ""),
       problem: String(form.get("problem") ?? ""),
     };
     const response = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -99,9 +106,9 @@ export default function Home() {
     event.currentTarget.reset();
   }
 
-  async function updateLead(lead: Lead, status: string) {
+  async function updateLead(lead: Lead, status: string, customerRating = 0) {
     const assignedVendor = matchedVendor?.businessName ?? lead.assignedVendor;
-    const response = await fetch("/api/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: lead.id, status, assignedVendor }) });
+    const response = await fetch("/api/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: lead.id, status, assignedVendor, customerRating }) });
     if (response.ok) {
       const data = await response.json();
       setLeads((current) => current.map((item) => (item.id === lead.id ? data.lead : item)));
@@ -144,8 +151,11 @@ export default function Home() {
       <section id="book" className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Customer booking</p><h2 className="mt-2 text-3xl font-black">Lead database me save hoti hai</h2><p className="mt-4 leading-7 text-[#4d5a51]">Customer ko sirf service, area, phone aur problem dena hai. Pilot phase me pricing final vendor call ke baad confirm hogi.</p></div>
         <form onSubmit={submitLead} className="grid gap-4 bg-white p-5 shadow-sm ring-1 ring-[#dfe4dc]">
-          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Service<select className="rounded border border-[#ccd5ce] bg-white p-3" value={selectedService} onChange={(e) => setSelectedService(e.target.value)}>{services.map((service) => <option key={service}>{service}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Area<select className="rounded border border-[#ccd5ce] bg-white p-3" value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)}>{areas.map((area) => <option key={area}>{area}</option>)}</select></label></div>
+          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Service<select className="rounded border border-[#ccd5ce] bg-white p-3" value={selectedService} onChange={(e) => setSelectedService(e.target.value)}>{services.map((service) => <option key={service}>{service}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Package<select name="packageName" className="rounded border border-[#ccd5ce] bg-white p-3">{packages.map((item) => <option key={item}>{item}</option>)}</select></label></div>
+          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Area<select className="rounded border border-[#ccd5ce] bg-white p-3" value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)}>{areas.map((area) => <option key={area}>{area}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Time slot<select name="timeSlot" className="rounded border border-[#ccd5ce] bg-white p-3">{slots.map((slot) => <option key={slot}>{slot}</option>)}</select></label></div>
           <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Name<input name="name" className="rounded border border-[#ccd5ce] p-3" required placeholder="Customer name" /></label><label className="grid gap-2 text-sm font-bold">Phone<input name="phone" className="rounded border border-[#ccd5ce] p-3" required placeholder="10 digit mobile" /></label></div>
+          <label className="grid gap-2 text-sm font-bold">Full address<input name="address" className="rounded border border-[#ccd5ce] p-3" required placeholder="House no, street, landmark" /></label>
+          <label className="grid gap-2 text-sm font-bold">Payment mode<select name="paymentMode" className="rounded border border-[#ccd5ce] bg-white p-3">{payments.map((item) => <option key={item}>{item}</option>)}</select></label>
           <label className="grid gap-2 text-sm font-bold">Problem<textarea name="problem" className="min-h-24 rounded border border-[#ccd5ce] p-3" placeholder="Problem short me likho" /></label>
           <button className="rounded bg-[#0d4f3c] px-5 py-3 font-black text-white">Submit Lead</button>
           <p className="rounded bg-[#eef3ec] p-3 text-sm text-[#4d5a51]">{notice}</p>
@@ -173,7 +183,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Admin operations</p><h2 className="mt-2 text-3xl font-black">Lead tracking dashboard</h2></div><button onClick={() => setAdminOpen((value) => !value)} className="rounded bg-[#161816] px-5 py-3 font-black text-white">{adminOpen ? "Hide Admin" : "Open Admin"}</button></div>
           <div className="mt-6 grid gap-3 sm:grid-cols-4">{metrics.map(([label, value]) => <div className="rounded border border-[#dfe4dc] p-4" key={label}><p className="text-3xl font-black">{value}</p><p className="text-sm font-bold text-[#637067]">{label}</p></div>)}</div>
-          {adminOpen && <div className="mt-5 overflow-hidden rounded border border-[#dfe4dc]">{leads.map((lead) => <div key={lead.id} className="grid gap-3 border-b border-[#edf0eb] p-4 text-sm last:border-0 lg:grid-cols-[1fr_0.7fr_1fr_1.4fr]"><div><strong>{lead.service}</strong><p className="text-[#637067]">{lead.name} - {lead.phone}</p></div><span>{lead.area}</span><span>{lead.assignedVendor}</span><div className="flex flex-wrap gap-2">{statuses.map((status) => <button key={status} onClick={() => updateLead(lead, status)} className={`rounded px-3 py-2 text-xs font-black ${lead.status === status ? "bg-[#0d4f3c] text-white" : "bg-[#eef3ec] text-[#0d4f3c]"}`}>{status}</button>)}</div></div>)}</div>}
+          {adminOpen && <div className="mt-5 overflow-hidden rounded border border-[#dfe4dc]">{leads.map((lead) => <div key={lead.id} className="grid gap-3 border-b border-[#edf0eb] p-4 text-sm last:border-0 lg:grid-cols-[1.1fr_1.1fr_0.9fr_1.4fr]"><div><strong>{lead.service}</strong><p className="text-[#637067]">{lead.name} - {lead.phone}</p><p className="text-[#637067]">{lead.packageName}</p></div><div><p className="font-bold">{lead.area}</p><p className="text-[#637067]">{lead.address}</p><p className="text-[#637067]">{lead.timeSlot}</p></div><div><p className="font-bold">{lead.assignedVendor}</p><p className="text-[#637067]">{lead.paymentMode}</p><p className="text-[#637067]">Rating: {lead.customerRating || "Pending"}</p></div><div className="flex flex-wrap gap-2">{statuses.map((status) => <button key={status} onClick={() => updateLead(lead, status)} className={`rounded px-3 py-2 text-xs font-black ${lead.status === status ? "bg-[#0d4f3c] text-white" : "bg-[#eef3ec] text-[#0d4f3c]"}`}>{status}</button>)}{[1, 2, 3, 4, 5].map((rating) => <button key={rating} onClick={() => updateLead(lead, "Completed", rating)} className="rounded bg-[#fff4df] px-3 py-2 text-xs font-black text-[#8a4d00]">{rating} star</button>)}</div></div>)}</div>}
           {adminOpen && <div className="mt-5 grid gap-3 lg:grid-cols-2">{vendors.map((vendor) => <div key={vendor.id} className="rounded border border-[#dfe4dc] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-black">{vendor.businessName}</h3><p className="text-sm text-[#637067]">{vendor.service} - {vendor.areas}</p></div><span className="rounded bg-[#e8f3ee] px-3 py-1 text-xs font-black text-[#0d4f3c]">{vendor.status}</span></div><p className="mt-3 text-sm font-bold">WhatsApp: {vendor.phone}</p></div>)}</div>}
         </div>
       </section>
