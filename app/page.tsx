@@ -38,6 +38,7 @@ export default function Home() {
   const [vendors, setVendors] = useState<Vendor[]>(seedVendors);
   const [notice, setNotice] = useState("System ready. Lead ya vendor submit karo.");
   const [adminOpen, setAdminOpen] = useState(false);
+  const [serviceQuery, setServiceQuery] = useState("");
 
   async function loadData() {
     const [leadResponse, vendorResponse] = await Promise.all([fetch("/api/leads"), fetch("/api/vendors")]);
@@ -66,6 +67,7 @@ export default function Home() {
     ["Active", leads.filter((lead) => lead.status !== "Cancelled").length],
     ["Completed", leads.filter((lead) => lead.status === "Completed").length],
   ];
+  const filteredServices = serviceCards.filter(([name, copy]) => `${name} ${copy}`.toLowerCase().includes(serviceQuery.toLowerCase()));
 
   async function submitLead(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -137,14 +139,14 @@ export default function Home() {
             <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">Service chahiye? Verified vendor jaldi connect hoga.</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-[#4d5a51]">Customer request submit karta hai, system service aur area ke hisaab se vendor suggest karta hai, aur admin dashboard par pura lead status track hota hai.</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row"><a href="#book" className="rounded bg-[#0d4f3c] px-5 py-3 text-center font-black text-white">Book Service</a><a href="#vendors" className="rounded border border-[#0d4f3c] bg-white/80 px-5 py-3 text-center font-black text-[#0d4f3c]">Join as Vendor</a></div>
-            <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">{["Free pilot", "Fast routing", "Live tracking"].map((item) => <div className="border-l-4 border-[#f29d35] bg-white/90 p-3" key={item}><p className="text-sm font-black">{item}</p></div>)}</div>
+            <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">{["30 min response", "Verified vendors", "Service warranty"].map((item) => <div className="border-l-4 border-[#f29d35] bg-white/90 p-3" key={item}><p className="text-sm font-black">{item}</p></div>)}</div>
           </div>
         </div>
       </section>
 
       <section className="border-b border-[#dfe4dc] bg-white">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:grid-cols-4 sm:px-6">
-          {["Request receive", "Vendor match", "Customer contact", "Status track"].map((step, index) => <div className="rounded border border-[#dfe4dc] p-4" key={step}><p className="text-sm font-black text-[#f29d35]">Step {index + 1}</p><h3 className="mt-2 font-black">{step}</h3></div>)}
+          {["Choose package", "Pick slot", "Vendor accepts", "Track & rate"].map((step, index) => <div className="rounded border border-[#dfe4dc] p-4" key={step}><p className="text-sm font-black text-[#f29d35]">Step {index + 1}</p><h3 className="mt-2 font-black">{step}</h3></div>)}
         </div>
       </section>
 
@@ -164,8 +166,23 @@ export default function Home() {
 
       <section id="services" className="border-y border-[#dfe4dc] bg-[#eef3ec]">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-          <p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Services</p><h2 className="mt-2 text-3xl font-black">High-demand categories for Delhi</h2>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{serviceCards.map(([name, copy, time]) => <button key={name} onClick={() => setSelectedService(name)} className="min-h-40 rounded border border-[#dfe4dc] bg-white p-4 text-left hover:border-[#0d4f3c]"><p className="text-xs font-black uppercase text-[#f29d35]">{time}</p><h3 className="mt-3 text-xl font-black">{name}</h3><p className="mt-2 text-sm leading-6 text-[#637067]">{copy}</p></button>)}</div>
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Services</p><h2 className="mt-2 text-3xl font-black">High-demand categories for Delhi</h2></div><input value={serviceQuery} onChange={(event) => setServiceQuery(event.target.value)} className="rounded border border-[#ccd5ce] bg-white p-3 sm:w-72" placeholder="Search service" /></div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{filteredServices.map(([name, copy, time]) => <button key={name} onClick={() => setSelectedService(name)} className="min-h-40 rounded border border-[#dfe4dc] bg-white p-4 text-left hover:border-[#0d4f3c]"><p className="text-xs font-black uppercase text-[#f29d35]">{time}</p><h3 className="mt-3 text-xl font-black">{name}</h3><p className="mt-2 text-sm leading-6 text-[#637067]">{copy}</p><p className="mt-4 text-sm font-black text-[#0d4f3c]">View packages</p></button>)}</div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#f29d35]">Trust</p><h3 className="mt-2 text-2xl font-black">Verified professional network</h3><p className="mt-3 leading-7 text-[#637067]">KYC, skill check, area mapping, rating aur warning system se vendor quality maintain hoti hai.</p></div>
+          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#f29d35]">Warranty</p><h3 className="mt-2 text-2xl font-black">7-day service support</h3><p className="mt-3 leading-7 text-[#637067]">Pilot ke liye clear complaint window rakho, taki customer trust build ho aur repeat booking aaye.</p></div>
+          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#f29d35]">Quotes</p><h3 className="mt-2 text-2xl font-black">Best vendor shortlist</h3><p className="mt-3 leading-7 text-[#637067]">Admin same lead ko 2-3 vendors se compare karke reliable vendor assign kar sakta hai.</p></div>
+        </div>
+      </section>
+
+      <section className="border-y border-[#dfe4dc] bg-white">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2">
+          <div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Before technician arrives</p><h2 className="mt-2 text-3xl font-black">Customer ko clear preparation list</h2><p className="mt-4 leading-7 text-[#4d5a51]">Booking ke baad customer ko batao kya ready rakhna hai. Isse cancellations kam aur service speed better hoti hai.</p></div>
+          <div className="grid gap-3 sm:grid-cols-2">{["Working plug point", "Ladder or stool", "Clear access area", "Issue photo optional"].map((item) => <div key={item} className="rounded border border-[#dfe4dc] bg-[#f7f8f5] p-4 font-black">{item}</div>)}</div>
         </div>
       </section>
 
