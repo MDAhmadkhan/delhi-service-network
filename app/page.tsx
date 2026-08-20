@@ -157,7 +157,7 @@ export default function Home() {
   const [selectedArea, setSelectedArea] = useState("Rohini");
   const [leads, setLeads] = useState<Lead[]>(seedLeads);
   const [vendors, setVendors] = useState<Vendor[]>(seedVendors);
-  const [notice, setNotice] = useState("System ready. Query save hogi aur email notification ready hai.");
+  const [notice, setNotice] = useState("System ready. Query save hogi aur hello@ilovetoolxyz.com par mail forward hoga.");
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminPin, setAdminPin] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -221,7 +221,7 @@ export default function Home() {
     if (!response.ok) return setNotice("Lead save nahi hui. Thodi der baad try karo.");
     const data = await response.json();
     setLeads((current) => [data.lead, ...current.filter((lead) => lead.id < 1000)]);
-    setNotice(`Query saved. Email notification queued for hello@ilovetoolxyz.com. Suggested vendor: ${matchedVendor?.businessName ?? "Auto match ready"}.`);
+    setNotice(`Query saved. Mail forwarded to hello@ilovetoolxyz.com. Suggested vendor: ${matchedVendor?.businessName ?? "Auto match ready"}.`);
     event.currentTarget.reset();
   }
 
@@ -238,7 +238,7 @@ export default function Home() {
     if (!response.ok) return setNotice("Vendor save nahi hua. Thodi der baad try karo.");
     const data = await response.json();
     setVendors((current) => [data.vendor, ...current.filter((vendor) => vendor.id < 200)]);
-    setNotice("Vendor pilot network me add ho gaya. Email notification queued for hello@ilovetoolxyz.com.");
+    setNotice("Vendor pilot network me add ho gaya. Mail forwarded to hello@ilovetoolxyz.com.");
     event.currentTarget.reset();
   }
 

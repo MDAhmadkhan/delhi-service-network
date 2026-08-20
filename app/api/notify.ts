@@ -12,7 +12,7 @@ export async function sendNotificationEmail({ subject, lines }: EmailPayload) {
   const apiKey = typeof env.RESEND_API_KEY === "string" ? env.RESEND_API_KEY : "";
 
   if (!apiKey) {
-    return { sent: false, reason: "RESEND_API_KEY not configured" };
+    return sendFormSubmitFallback({ subject, lines });
   }
 
   const response = await fetch("https://api.resend.com/emails", {
@@ -34,6 +34,29 @@ export async function sendNotificationEmail({ subject, lines }: EmailPayload) {
   }
 
   return { sent: true };
+}
+
+async function sendFormSubmitFallback({ subject, lines }: EmailPayload) {
+  const response = await fetch(`https://formsubmit.co/ajax/${inboxEmail}`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      _subject: subject,
+      _template: "table",
+      _captcha: "false",
+      source: "Delhi Service Network",
+      message: lines.join("\n"),
+    }),
+  });
+
+  if (!response.ok) {
+    return { sent: false, reason: await response.text() };
+  }
+
+  return { sent: true, provider: "formsubmit" };
 }
 
 export { inboxEmail };
