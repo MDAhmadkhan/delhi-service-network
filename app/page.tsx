@@ -157,7 +157,7 @@ export default function Home() {
   const [selectedArea, setSelectedArea] = useState("Rohini");
   const [leads, setLeads] = useState<Lead[]>(seedLeads);
   const [vendors, setVendors] = useState<Vendor[]>(seedVendors);
-  const [notice, setNotice] = useState("System ready. Lead ya vendor submit karo.");
+  const [notice, setNotice] = useState("System ready. Query save hogi aur email notification ready hai.");
   const [adminOpen, setAdminOpen] = useState(false);
   const [adminPin, setAdminPin] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -221,7 +221,7 @@ export default function Home() {
     if (!response.ok) return setNotice("Lead save nahi hui. Thodi der baad try karo.");
     const data = await response.json();
     setLeads((current) => [data.lead, ...current.filter((lead) => lead.id < 1000)]);
-    setNotice(`Lead saved. Suggested vendor: ${matchedVendor?.businessName ?? "Auto match ready"}.`);
+    setNotice(`Query saved. Email notification queued for hello@ilovetoolxyz.com. Suggested vendor: ${matchedVendor?.businessName ?? "Auto match ready"}.`);
     event.currentTarget.reset();
   }
 
@@ -238,7 +238,7 @@ export default function Home() {
     if (!response.ok) return setNotice("Vendor save nahi hua. Thodi der baad try karo.");
     const data = await response.json();
     setVendors((current) => [data.vendor, ...current.filter((vendor) => vendor.id < 200)]);
-    setNotice("Vendor pilot network me add ho gaya.");
+    setNotice("Vendor pilot network me add ho gaya. Email notification queued for hello@ilovetoolxyz.com.");
     event.currentTarget.reset();
   }
 
@@ -273,7 +273,8 @@ export default function Home() {
             <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">Service chahiye? Verified vendor jaldi connect hoga.</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-[#4d5a51]">Customer request submit karta hai, system service aur area ke hisaab se vendor suggest karta hai, aur admin dashboard par pura lead status track hota hai.</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row"><a href="#book" className="rounded bg-[#0d4f3c] px-5 py-3 text-center font-black text-white">Book Service</a><a href="#vendors" className="rounded border border-[#0d4f3c] bg-white/80 px-5 py-3 text-center font-black text-[#0d4f3c]">Join as Vendor</a></div>
-            <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">{["60+ services", "Verified vendors", "Service warranty"].map((item) => <div className="border-l-4 border-[#f29d35] bg-white/90 p-3" key={item}><p className="text-sm font-black">{item}</p></div>)}</div>
+            <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">{["60+ services", "Verified vendors", "Email alerts"].map((item) => <div className="border-l-4 border-[#f29d35] bg-white/90 p-3" key={item}><p className="text-sm font-black">{item}</p></div>)}</div>
+            <p className="mt-4 text-sm font-bold text-[#4d5a51]">Queries inbox: hello@ilovetoolxyz.com</p>
           </div>
         </div>
       </section>

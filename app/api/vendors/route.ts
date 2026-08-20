@@ -1,6 +1,7 @@
 import { desc } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { vendors } from "../../../db/schema";
+import { sendNotificationEmail } from "../notify";
 
 function clean(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -48,7 +49,19 @@ export async function POST(request: Request) {
       })
       .returning();
 
-    return Response.json({ vendor }, { status: 201 });
+    const email = await sendNotificationEmail({
+      subject: `New vendor signup: ${businessName}`,
+      lines: [
+        "New vendor signup received on Delhi Service Network.",
+        "",
+        `Business name: ${businessName}`,
+        `Phone: ${phone}`,
+        `Service: ${service}`,
+        `Areas served: ${areas}`,
+      ],
+    });
+
+    return Response.json({ vendor, email }, { status: 201 });
   } catch (error) {
     return Response.json({ error: routeError(error) }, { status: 500 });
   }

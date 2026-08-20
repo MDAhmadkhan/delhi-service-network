@@ -10,6 +10,7 @@ Live site: https://delhi-service-network.yummy-mite-8360.chatgpt.site
 
 - Customer booking form for Delhi NCR service requests
 - Vendor onboarding form for free pilot leads
+- Email notifications for customer queries and vendor signups to `hello@ilovetoolxyz.com`
 - 60+ service catalogue across home repair, cleaning, beauty, events, business, moving, rentals, and education
 - Searchable service catalogue, package selection, time slot, address, and payment mode
 - Trust, warranty, customer preparation, and quote-shortlist sections
@@ -53,6 +54,7 @@ npm test
 
 ## Next Production Steps
 
+- Set `RESEND_API_KEY` in Sites environment variables so live email delivery starts
 - Connect WhatsApp Cloud API, WATI, or AiSensy for vendor/customer notifications
 - Add admin authentication before sharing dashboard publicly
 - Add vendor verification fields such as ID proof, service photos, and areas

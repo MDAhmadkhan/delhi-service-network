@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { leads } from "../../../db/schema";
+import { sendNotificationEmail } from "../notify";
 
 function clean(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -58,7 +59,24 @@ export async function POST(request: Request) {
       })
       .returning();
 
-    return Response.json({ lead }, { status: 201 });
+    const email = await sendNotificationEmail({
+      subject: `New customer query: ${service} in ${area}`,
+      lines: [
+        "New customer query received on Delhi Service Network.",
+        "",
+        `Name: ${name}`,
+        `Phone: ${phone}`,
+        `Service: ${service}`,
+        `Package: ${packageName}`,
+        `Area: ${area}`,
+        `Address: ${address}`,
+        `Time slot: ${timeSlot}`,
+        `Payment mode: ${paymentMode}`,
+        `Problem: ${problem || "Not provided"}`,
+      ],
+    });
+
+    return Response.json({ lead, email }, { status: 201 });
   } catch (error) {
     return Response.json({ error: routeError(error) }, { status: 500 });
   }
