@@ -17,7 +17,7 @@ Live site: https://delhi-service-network.yummy-mite-8360.chatgpt.site
 - Trust, warranty, customer preparation, and quote-shortlist sections
 - Launch rules, pilot policy, support FAQs, and customer/vendor consent checkboxes
 - Persistent lead and vendor storage with Cloudflare D1
-- Admin dashboard with live metrics, lead status buttons, and vendor cards
+- Complete admin dashboard with PIN lock, live metrics, lead search, service/status filters, vendor assignment, call/WhatsApp actions, CSV export, lead copy summary, rating buttons, and vendor cards
 - Drizzle schema and migrations included
 - Mobile-friendly, professional service marketplace UI
 

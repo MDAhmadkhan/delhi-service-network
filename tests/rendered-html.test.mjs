@@ -41,6 +41,6 @@ test("server-renders the Delhi Service Network homepage", async () => {
   assert.match(html, /Accept and manage leads/);
   assert.match(html, /Support desk/);
   assert.match(html, /Launch rules/);
-  assert.match(html, /Admin operations/);
+  assert.match(html, /Complete lead command center/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton|codex-preview/i);
 });
