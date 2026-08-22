@@ -110,7 +110,7 @@ export default function AdminPage() {
       <header className="border-b border-[#dfe4dc] bg-[#101411] text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <a href="/" className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded bg-[#f29d35] font-black text-[#17120b]">DS</span>
+            <img src="/logo-dsn.svg" alt="" className="h-11 w-11 rounded" />
             <span><strong className="block">Delhi Service Network</strong><span className="text-xs text-white/60">Private admin panel</span></span>
           </a>
           <a href="/" className="rounded border border-white/20 px-4 py-2 text-sm font-black">Back to Website</a>

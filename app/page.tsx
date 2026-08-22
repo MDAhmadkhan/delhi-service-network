@@ -311,7 +311,7 @@ export default function Home() {
       <header className="sticky top-0 z-30 border-b border-[#dfe4dc] bg-[#f7f8f5]/95 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <a href="#top" className="flex items-center gap-3" aria-label="Delhi Service Network">
-            <span className="grid h-10 w-10 place-items-center rounded bg-[#0d4f3c] font-black text-white">DS</span>
+            <img src="/logo-dsn.svg" alt="" className="h-11 w-11 rounded" />
             <span><strong className="block text-sm uppercase">Delhi Service Network</strong><span className="block text-xs text-[#637067]">Local service lead platform</span></span>
           </a>
           <nav className="hidden gap-5 text-sm font-bold text-[#4c574e] md:flex"><a href="#services">Services</a><a href="#book">Book</a><a href="#vendors">Vendors</a><a href="#support">Support</a></nav>

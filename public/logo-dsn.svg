@@ -1,0 +1,13 @@
+<svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="240" height="240" rx="48" fill="#0D4F3C"/>
+  <path d="M120 31C84.1 31 55 60.1 55 96C55 146.5 120 208 120 208C120 208 185 146.5 185 96C185 60.1 155.9 31 120 31Z" fill="#F7F8F5"/>
+  <circle cx="120" cy="96" r="44" fill="#0D4F3C"/>
+  <path d="M83 125C101 105 139 105 157 125" stroke="#F29D35" stroke-width="12" stroke-linecap="round"/>
+  <path d="M92 89H148" stroke="#F7F8F5" stroke-width="12" stroke-linecap="round"/>
+  <path d="M120 61V117" stroke="#F7F8F5" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="83" cy="125" r="10" fill="#F29D35"/>
+  <circle cx="157" cy="125" r="10" fill="#F29D35"/>
+  <circle cx="120" cy="61" r="10" fill="#F29D35"/>
+  <rect x="69" y="154" width="102" height="34" rx="17" fill="#F29D35"/>
+  <text x="120" y="178" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="900" fill="#17120B">DSN</text>
+</svg>

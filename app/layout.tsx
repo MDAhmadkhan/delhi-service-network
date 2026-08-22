@@ -23,8 +23,8 @@ export const metadata: Metadata = {
     images: ["/hero-service-network.png"],
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/logo-dsn.svg",
+    shortcut: "/logo-dsn.svg",
   },
 };
 

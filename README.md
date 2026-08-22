@@ -20,6 +20,7 @@ Live site: https://delhi-service-network.yummy-mite-8360.chatgpt.site
 - Separate `/admin` dashboard with PIN lock, live metrics, lead search, service/status filters, vendor assignment, call/WhatsApp actions, CSV export, lead copy summary, rating buttons, and vendor cards
 - Drizzle schema and migrations included
 - Mobile-friendly, professional service marketplace UI
+- Custom DSN logo and favicon for customer website and private admin panel
 
 ## Business Model
 
