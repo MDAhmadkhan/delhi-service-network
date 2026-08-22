@@ -13,13 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Delhi Service Network",
+  title: "Delhi Service Network | Delhi NCR Doorstep Services",
   description:
-    "A professional Delhi NCR local services platform for customer leads, vendor onboarding, and pilot lead routing.",
+    "Book Delhi NCR doorstep services, onboard verified vendors, track leads, and receive customer queries by email.",
   openGraph: {
-    title: "Delhi Service Network",
+    title: "Delhi Service Network | Delhi NCR Doorstep Services",
     description:
-      "Book Delhi NCR doorstep services and route leads to verified local vendors.",
+      "A launch-ready local services lead platform with booking, vendor onboarding, admin tracking, and email alerts.",
     images: ["/hero-service-network.png"],
   },
   icons: {

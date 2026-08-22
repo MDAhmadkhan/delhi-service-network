@@ -33,12 +33,14 @@ test("server-renders the Delhi Service Network homepage", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>Delhi Service Network<\/title>/i);
+  assert.match(html, /<title>Delhi Service Network \| Delhi NCR Doorstep Services<\/title>/i);
   assert.match(html, /Service chahiye\? Verified vendor jaldi connect hoga/);
   assert.match(html, /Book Service/);
   assert.match(html, /Join as Vendor/);
   assert.match(html, /Track your booking/);
   assert.match(html, /Accept and manage leads/);
+  assert.match(html, /Support desk/);
+  assert.match(html, /Launch rules/);
   assert.match(html, /Admin operations/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton|codex-preview/i);
 });

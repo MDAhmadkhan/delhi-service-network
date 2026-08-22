@@ -76,6 +76,19 @@ const statuses = ["New", "Assigned", "Accepted", "On the way", "Completed", "Can
 const packages = ["Basic Visit - Rs 199", "Standard Service - Rs 499", "Deep Service - Rs 899", "Inspection first"];
 const slots = ["Anytime today", "Today 10 AM - 1 PM", "Today 2 PM - 5 PM", "Tomorrow 10 AM - 1 PM", "Tomorrow 2 PM - 5 PM"];
 const payments = ["Cash after service", "UPI after service", "Online payment later"];
+const launchRules = [
+  ["Pilot model", "Abhi vendor se commission zero rahega. Pehle service quality, response time aur repeat demand validate hogi."],
+  ["Customer promise", "Final price vendor call par confirm hoga. Visit charge, parts aur extra work customer approval ke baad hi hoga."],
+  ["Vendor rule", "Lead accept karne ke baad customer ko jaldi call karna hoga. Fake update, overcharge ya no-show vendor ko pause karega."],
+  ["Admin control", "Har lead ka status, assigned vendor, completion aur rating admin panel me track hoga."],
+];
+const faqs = [
+  ["Service ka final price kaise confirm hoga?", "Customer request ke baad vendor phone par issue samjhega. Parts ya extra work ho to pehle quote confirm hoga."],
+  ["Abhi payment kaise hoga?", "Pilot phase me customer vendor ko service ke baad cash/UPI de sakta hai. Platform commission baad me enable hoga."],
+  ["Vendor kaise verify hoga?", "Admin phone, service category, service area, previous work aur first few customer ratings check karega."],
+  ["Complaint ya repeat issue ka kya process hai?", "Customer same phone number se booking track karega aur admin lead status/rating ke through follow-up karega."],
+];
+const adminChecklist = ["New lead ko 10 min ke andar call", "Best matching vendor assign", "Customer ko price/slot confirm", "Completion ke baad rating update", "Bad vendor ko pause"];
 const serviceCards = [
   ["AC Repair", "Cooling, gas refill, service", "30-60 min"],
   ["RO Service", "Filter, leakage, installation", "45-90 min"],
@@ -261,7 +274,7 @@ export default function Home() {
             <span className="grid h-10 w-10 place-items-center rounded bg-[#0d4f3c] font-black text-white">DS</span>
             <span><strong className="block text-sm uppercase">Delhi Service Network</strong><span className="block text-xs text-[#637067]">Local service lead platform</span></span>
           </a>
-          <nav className="hidden gap-5 text-sm font-bold text-[#4c574e] md:flex"><a href="#services">Services</a><a href="#book">Book</a><a href="#vendors">Vendors</a><a href="#admin">Admin</a></nav>
+          <nav className="hidden gap-5 text-sm font-bold text-[#4c574e] md:flex"><a href="#services">Services</a><a href="#book">Book</a><a href="#vendors">Vendors</a><a href="#support">Support</a><a href="#admin">Admin</a></nav>
           <a href="#book" className="rounded bg-[#f29d35] px-4 py-2 text-sm font-black text-[#17120b]">Book Now</a>
         </div>
       </header>
@@ -292,13 +305,21 @@ export default function Home() {
         <form onSubmit={submitLead} className="grid gap-4 bg-white p-5 shadow-sm ring-1 ring-[#dfe4dc]">
           <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Service<select className="rounded border border-[#ccd5ce] bg-white p-3" value={selectedService} onChange={(e) => setSelectedService(e.target.value)}>{services.map((service) => <option key={service}>{service}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Package<select name="packageName" className="rounded border border-[#ccd5ce] bg-white p-3">{packages.map((item) => <option key={item}>{item}</option>)}</select></label></div>
           <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Area<select className="rounded border border-[#ccd5ce] bg-white p-3" value={selectedArea} onChange={(e) => setSelectedArea(e.target.value)}>{areas.map((area) => <option key={area}>{area}</option>)}</select></label><label className="grid gap-2 text-sm font-bold">Time slot<select name="timeSlot" className="rounded border border-[#ccd5ce] bg-white p-3">{slots.map((slot) => <option key={slot}>{slot}</option>)}</select></label></div>
-          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Name<input name="name" className="rounded border border-[#ccd5ce] p-3" required placeholder="Customer name" /></label><label className="grid gap-2 text-sm font-bold">Phone<input name="phone" className="rounded border border-[#ccd5ce] p-3" required placeholder="10 digit mobile" /></label></div>
+          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Name<input name="name" className="rounded border border-[#ccd5ce] p-3" required placeholder="Customer name" /></label><label className="grid gap-2 text-sm font-bold">Phone<input name="phone" inputMode="numeric" pattern="[0-9]{10}" className="rounded border border-[#ccd5ce] p-3" required placeholder="10 digit mobile" /></label></div>
           <label className="grid gap-2 text-sm font-bold">Full address<input name="address" className="rounded border border-[#ccd5ce] p-3" required placeholder="House no, street, landmark" /></label>
           <label className="grid gap-2 text-sm font-bold">Payment mode<select name="paymentMode" className="rounded border border-[#ccd5ce] bg-white p-3">{payments.map((item) => <option key={item}>{item}</option>)}</select></label>
           <label className="grid gap-2 text-sm font-bold">Problem<textarea name="problem" className="min-h-24 rounded border border-[#ccd5ce] p-3" placeholder="Problem short me likho" /></label>
+          <label className="flex items-start gap-3 rounded bg-[#f7f8f5] p-3 text-sm font-bold text-[#4d5a51]"><input type="checkbox" required className="mt-1" /> I agree ki Delhi Service Network meri request ko suitable vendor ke saath share kar sakta hai.</label>
           <button className="rounded bg-[#0d4f3c] px-5 py-3 font-black text-white">Submit Lead</button>
           <p className="rounded bg-[#eef3ec] p-3 text-sm text-[#4d5a51]">{notice}</p>
         </form>
+      </section>
+
+      <section className="border-y border-[#dfe4dc] bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+          <div className="max-w-3xl"><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Launch rules</p><h2 className="mt-2 text-3xl font-black">Pilot ko clean aur professional rakhne ke rules</h2><p className="mt-4 leading-7 text-[#637067]">Ye model lead generation se start hoga, phir data milne ke baad commission, vendor plans aur premium listing add kar sakte ho.</p></div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">{launchRules.map(([title, copy]) => <div key={title} className="rounded border border-[#dfe4dc] bg-[#f7f8f5] p-5"><h3 className="text-xl font-black">{title}</h3><p className="mt-3 leading-7 text-[#637067]">{copy}</p></div>)}</div>
+        </div>
       </section>
 
       <section id="services" className="border-y border-[#dfe4dc] bg-[#eef3ec]">
@@ -353,22 +374,39 @@ export default function Home() {
       <section id="vendors" className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2">
         <div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Vendor pilot</p><h2 className="mt-2 text-3xl font-black">Abhi commission zero, performance tracking on</h2><p className="mt-4 leading-7 text-[#4d5a51]">Vendor ko free leads milengi. Admin response time, completed jobs aur customer satisfaction dekh kar best vendors shortlist karega.</p></div>
         <form onSubmit={submitVendor} className="grid gap-4 bg-white p-5 shadow-sm ring-1 ring-[#dfe4dc]">
-          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Business name<input name="businessName" className="rounded border border-[#ccd5ce] p-3" required placeholder="Vendor/company" /></label><label className="grid gap-2 text-sm font-bold">WhatsApp<input name="vendorPhone" className="rounded border border-[#ccd5ce] p-3" required placeholder="Mobile number" /></label></div>
+          <div className="grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Business name<input name="businessName" className="rounded border border-[#ccd5ce] p-3" required placeholder="Vendor/company" /></label><label className="grid gap-2 text-sm font-bold">WhatsApp<input name="vendorPhone" inputMode="numeric" pattern="[0-9]{10}" className="rounded border border-[#ccd5ce] p-3" required placeholder="Mobile number" /></label></div>
           <label className="grid gap-2 text-sm font-bold">Service<select name="vendorService" className="rounded border border-[#ccd5ce] bg-white p-3">{services.map((service) => <option key={service}>{service}</option>)}</select></label>
           <label className="grid gap-2 text-sm font-bold">Areas served<input name="areas" className="rounded border border-[#ccd5ce] p-3" required placeholder="Rohini, Pitampura, Dwarka" /></label>
+          <label className="flex items-start gap-3 rounded bg-[#f7f8f5] p-3 text-sm font-bold text-[#4d5a51]"><input type="checkbox" required className="mt-1" /> I agree ki pilot phase me fast response, fair pricing aur genuine status update maintain karunga.</label>
           <button className="rounded bg-[#f29d35] px-5 py-3 font-black text-[#17120b]">Add Vendor</button>
         </form>
+      </section>
+
+      <section id="support" className="border-y border-[#dfe4dc] bg-[#eef3ec]">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[0.85fr_1.15fr]">
+          <div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Support desk</p><h2 className="mt-2 text-3xl font-black">Customer aur vendor dono ke liye clear help</h2><p className="mt-4 leading-7 text-[#4d5a51]">Launch ke time confusion kam rakhna sabse important hai. Booking, pricing, complaint aur vendor rules yahin visible rahenge.</p><div className="mt-6 grid gap-3"><a href="mailto:srijanartrugs90@gmail.com" className="rounded bg-[#0d4f3c] px-5 py-3 text-center font-black text-white">Email Support</a><a href="#book" className="rounded border border-[#0d4f3c] bg-white px-5 py-3 text-center font-black text-[#0d4f3c]">Create New Query</a></div></div>
+          <div className="grid gap-3">{faqs.map(([question, answer]) => <details key={question} className="rounded border border-[#dfe4dc] bg-white p-4"><summary className="cursor-pointer font-black">{question}</summary><p className="mt-3 leading-7 text-[#637067]">{answer}</p></details>)}</div>
+        </div>
       </section>
 
       <section id="admin" className="border-t border-[#dfe4dc] bg-white">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Admin operations</p><h2 className="mt-2 text-3xl font-black">Lead tracking dashboard</h2></div><div className="flex flex-col gap-2 sm:flex-row"><input value={adminPin} onChange={(event) => setAdminPin(event.target.value)} className="rounded border border-[#ccd5ce] p-3" placeholder="Admin PIN" /><button onClick={() => setAdminOpen(adminPin === "7860")} className="rounded bg-[#161816] px-5 py-3 font-black text-white">{adminOpen ? "Admin Open" : "Open Admin"}</button></div></div>
           <div className="mt-6 grid gap-3 sm:grid-cols-4">{metrics.map(([label, value]) => <div className="rounded border border-[#dfe4dc] p-4" key={label}><p className="text-3xl font-black">{value}</p><p className="text-sm font-bold text-[#637067]">{label}</p></div>)}</div>
+          {adminOpen && <div className="mt-5 grid gap-3 rounded bg-[#f7f8f5] p-4 sm:grid-cols-5">{adminChecklist.map((item) => <div key={item} className="rounded border border-[#dfe4dc] bg-white p-3 text-sm font-black">{item}</div>)}</div>}
           {adminOpen && <div className="mt-5 flex flex-wrap gap-2">{["All", ...statuses].map((status) => <button key={status} onClick={() => setStatusFilter(status)} className={`rounded px-4 py-2 text-sm font-black ${statusFilter === status ? "bg-[#0d4f3c] text-white" : "bg-[#eef3ec] text-[#0d4f3c]"}`}>{status}</button>)}</div>}
           {adminOpen && <div className="mt-5 overflow-hidden rounded border border-[#dfe4dc]">{visibleLeads.map((lead) => <div key={lead.id} className="grid gap-3 border-b border-[#edf0eb] p-4 text-sm last:border-0 lg:grid-cols-[1.1fr_1.1fr_0.9fr_1.4fr]"><div><strong>{lead.service}</strong><p className="text-[#637067]">{lead.name} - {lead.phone}</p><p className="text-[#637067]">{lead.packageName}</p></div><div><p className="font-bold">{lead.area}</p><p className="text-[#637067]">{lead.address}</p><p className="text-[#637067]">{lead.timeSlot}</p></div><div><p className="font-bold">{lead.assignedVendor}</p><p className="text-[#637067]">{lead.paymentMode}</p><p className="text-[#637067]">Rating: {lead.customerRating || "Pending"}</p></div><div className="flex flex-wrap gap-2">{statuses.map((status) => <button key={status} onClick={() => updateLead(lead, status)} className={`rounded px-3 py-2 text-xs font-black ${lead.status === status ? "bg-[#0d4f3c] text-white" : "bg-[#eef3ec] text-[#0d4f3c]"}`}>{status}</button>)}{[1, 2, 3, 4, 5].map((rating) => <button key={rating} onClick={() => updateLead(lead, "Completed", rating)} className="rounded bg-[#fff4df] px-3 py-2 text-xs font-black text-[#8a4d00]">{rating} star</button>)}</div></div>)}</div>}
           {adminOpen && <div className="mt-5 grid gap-3 lg:grid-cols-2">{vendors.map((vendor) => <div key={vendor.id} className="rounded border border-[#dfe4dc] p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-black">{vendor.businessName}</h3><p className="text-sm text-[#637067]">{vendor.service} - {vendor.areas}</p></div><span className="rounded bg-[#e8f3ee] px-3 py-1 text-xs font-black text-[#0d4f3c]">{vendor.status}</span></div><p className="mt-3 text-sm font-bold">WhatsApp: {vendor.phone}</p></div>)}</div>}
         </div>
       </section>
+
+      <footer className="bg-[#161816] px-4 py-8 text-white sm:px-6">
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
+          <div><h2 className="text-xl font-black">Delhi Service Network</h2><p className="mt-2 text-sm leading-6 text-white/70">Delhi NCR local services, lead routing, vendor pilot and admin tracking platform.</p></div>
+          <div><p className="text-sm font-black uppercase text-[#f29d35]">Launch inbox</p><a className="mt-2 block font-bold" href="mailto:srijanartrugs90@gmail.com">srijanartrugs90@gmail.com</a></div>
+          <div><p className="text-sm font-black uppercase text-[#f29d35]">Admin PIN</p><p className="mt-2 text-sm text-white/70">Pilot dashboard ke liye current PIN: 7860. Launch ke baad isse login system me upgrade karna hai.</p></div>
+        </div>
+      </footer>
     </main>
   );
 }

@@ -11,9 +11,11 @@ Live site: https://delhi-service-network.yummy-mite-8360.chatgpt.site
 - Customer booking form for Delhi NCR service requests
 - Vendor onboarding form for free pilot leads
 - Email notifications for customer queries and vendor signups to `srijanartrugs90@gmail.com`
+- Resend email delivery configured through the production `RESEND_API_KEY` secret
 - 60+ service catalogue across home repair, cleaning, beauty, events, business, moving, rentals, and education
 - Searchable service catalogue, package selection, time slot, address, and payment mode
 - Trust, warranty, customer preparation, and quote-shortlist sections
+- Launch rules, pilot policy, support FAQs, and customer/vendor consent checkboxes
 - Persistent lead and vendor storage with Cloudflare D1
 - Admin dashboard with live metrics, lead status buttons, and vendor cards
 - Drizzle schema and migrations included
@@ -54,7 +56,7 @@ npm test
 
 ## Next Production Steps
 
-- Set `RESEND_API_KEY` in Sites environment variables so live email delivery starts
+- Keep `RESEND_API_KEY` in Sites environment variables so live email delivery stays active
 - Connect WhatsApp Cloud API, WATI, or AiSensy for vendor/customer notifications
 - Add admin authentication before sharing dashboard publicly
 - Add vendor verification fields such as ID proof, service photos, and areas
