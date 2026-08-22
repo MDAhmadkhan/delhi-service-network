@@ -1,6 +1,6 @@
 import { env } from "cloudflare:workers";
 
-const inboxEmail = "mohdahmad3011@gmail.com";
+const inboxEmail = "srijanartrugs90@gmail.com";
 const fromEmail = "Delhi Service Network <onboarding@resend.dev>";
 
 type EmailPayload = {
