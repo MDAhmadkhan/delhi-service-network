@@ -72,7 +72,6 @@ const services = [
   "Career Counseling",
 ];
 const areas = ["Rohini", "Dwarka", "Laxmi Nagar", "Karol Bagh", "Janakpuri", "Pitampura", "Saket", "Mayur Vihar", "Vasant Kunj", "Noida/Delhi NCR"];
-const statuses = ["New", "Assigned", "Accepted", "On the way", "Completed", "Cancelled"];
 const packages = ["Basic Visit - Rs 199", "Standard Service - Rs 499", "Deep Service - Rs 899", "Inspection first"];
 const slots = ["Anytime today", "Today 10 AM - 1 PM", "Today 2 PM - 5 PM", "Tomorrow 10 AM - 1 PM", "Tomorrow 2 PM - 5 PM"];
 const payments = ["Cash after service", "UPI after service", "Online payment later"];
@@ -88,7 +87,6 @@ const faqs = [
   ["Vendor kaise verify hoga?", "Admin phone, service category, service area, previous work aur first few customer ratings check karega."],
   ["Complaint ya repeat issue ka kya process hai?", "Customer same phone number se booking track karega aur admin lead status/rating ke through follow-up karega."],
 ];
-const adminChecklist = ["New lead ko 10 min ke andar call", "Best matching vendor assign", "Customer ko price/slot confirm", "Completion ke baad rating update", "Bad vendor ko pause"];
 const serviceCards = [
   ["AC Repair", "Cooling, gas refill, service", "30-60 min"],
   ["RO Service", "Filter, leakage, installation", "45-90 min"],
@@ -156,10 +154,6 @@ const serviceCards = [
   ["Career Counseling", "Study, job, career guidance", "Consultation"],
 ];
 
-const seedLeads: Lead[] = [
-  { id: 1001, name: "Demo Customer", phone: "9999999999", service: "AC Repair", packageName: "Standard Service - Rs 499", area: "Rohini", address: "Sector 7, Rohini", timeSlot: "Today 2 PM - 5 PM", paymentMode: "UPI after service", problem: "Cooling kam hai", status: "New", assignedVendor: "Auto match ready", customerRating: 0 },
-  { id: 1002, name: "Sample Lead", phone: "8888888888", service: "RO Service", packageName: "Basic Visit - Rs 199", area: "Dwarka", address: "Sector 12, Dwarka", timeSlot: "Tomorrow 10 AM - 1 PM", paymentMode: "Cash after service", problem: "Filter change", status: "Assigned", assignedVendor: "AquaFix Delhi", customerRating: 0 },
-];
 const seedVendors: Vendor[] = [
   { id: 201, businessName: "AquaFix Delhi", phone: "9876543210", service: "RO Service", areas: "Dwarka, Janakpuri", status: "Verified", rating: 46 },
   { id: 202, businessName: "CoolCare Experts", phone: "9876500000", service: "AC Repair", areas: "Rohini, Pitampura", status: "Verified", rating: 48 },
@@ -168,64 +162,37 @@ const seedVendors: Vendor[] = [
 export default function Home() {
   const [selectedService, setSelectedService] = useState("AC Repair");
   const [selectedArea, setSelectedArea] = useState("Rohini");
-  const [leads, setLeads] = useState<Lead[]>(seedLeads);
   const [vendors, setVendors] = useState<Vendor[]>(seedVendors);
   const [notice, setNotice] = useState("System ready. Query save hogi aur srijanartrugs90@gmail.com par mail forward hoga.");
-  const [adminOpen, setAdminOpen] = useState(false);
-  const [adminPin, setAdminPin] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [adminLeadQuery, setAdminLeadQuery] = useState("");
-  const [adminServiceFilter, setAdminServiceFilter] = useState("All");
-  const [adminMessage, setAdminMessage] = useState("PIN dal kar admin tools unlock karo.");
   const [serviceQuery, setServiceQuery] = useState("");
-  const [trackingPhone, setTrackingPhone] = useState("");
-  const [vendorPhone, setVendorPhone] = useState("");
 
-  async function loadData() {
-    const [leadResponse, vendorResponse] = await Promise.all([fetch("/api/leads"), fetch("/api/vendors")]);
-    if (leadResponse.ok) {
-      const data = await leadResponse.json();
-      if (data.leads?.length) setLeads(data.leads);
-    }
-    if (vendorResponse.ok) {
-      const data = await vendorResponse.json();
+  const [trackingPhone, setTrackingPhone] = useState("");
+  const [trackedBookings, setTrackedBookings] = useState<Lead[]>([]);
+  const [trackingStatus, setTrackingStatus] = useState<"idle" | "loading" | "empty" | "found">("idle");
+
+  const [vendorPhone, setVendorPhone] = useState("");
+  const [vendorProfile, setVendorProfile] = useState<Vendor | null>(null);
+  const [vendorJobs, setVendorJobs] = useState<Lead[]>([]);
+  const [vendorStatus, setVendorStatus] = useState<"idle" | "loading" | "not-found" | "found">("idle");
+
+  async function loadVendors() {
+    const response = await fetch("/api/vendors");
+    if (response.ok) {
+      const data = await response.json();
       if (data.vendors?.length) setVendors(data.vendors);
     }
   }
 
   useEffect(() => {
-    loadData().catch(() => setNotice("Database connect nahi hua, demo data visible hai."));
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time public vendor directory fetch on first mount
+    loadVendors().catch(() => setNotice("Vendor list load nahi hui, demo data visible hai."));
   }, []);
 
   const matchedVendor = useMemo(() => {
     const area = selectedArea.toLowerCase();
     return vendors.find((vendor) => vendor.service === selectedService && vendor.areas.toLowerCase().includes(area)) ?? vendors.find((vendor) => vendor.service === selectedService);
   }, [selectedArea, selectedService, vendors]);
-
-  const metrics = [
-    ["Leads", leads.length],
-    ["Vendors", vendors.length],
-    ["Active", leads.filter((lead) => lead.status !== "Cancelled").length],
-    ["Completed", leads.filter((lead) => lead.status === "Completed").length],
-  ];
   const filteredServices = serviceCards.filter(([name, copy]) => `${name} ${copy}`.toLowerCase().includes(serviceQuery.toLowerCase()));
-  const trackedBookings = leads.filter((lead) => trackingPhone && lead.phone.includes(trackingPhone.trim()));
-  const vendorProfile = vendors.find((vendor) => vendor.phone.includes(vendorPhone.trim()));
-  const vendorJobs = vendorPhone
-    ? leads.filter((lead) => {
-        if (!vendorProfile) return false;
-        return lead.service === vendorProfile.service && (lead.assignedVendor === vendorProfile.businessName || lead.assignedVendor === "Auto match ready");
-      })
-    : [];
-  const visibleLeads = leads.filter((lead) => {
-    const query = adminLeadQuery.trim().toLowerCase();
-    const queryMatch = !query || `${lead.name} ${lead.phone} ${lead.service} ${lead.area} ${lead.assignedVendor} ${lead.problem}`.toLowerCase().includes(query);
-    const statusMatch = statusFilter === "All" || lead.status === statusFilter;
-    const serviceMatch = adminServiceFilter === "All" || lead.service === adminServiceFilter;
-    return queryMatch && statusMatch && serviceMatch;
-  });
-  const unassignedLeads = leads.filter((lead) => lead.assignedVendor === "Auto match ready" || lead.status === "New").length;
-  const todayFollowUps = leads.filter((lead) => !["Completed", "Cancelled"].includes(lead.status)).length;
 
   async function submitLead(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -244,7 +211,6 @@ export default function Home() {
     const response = await fetch("/api/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     if (!response.ok) return setNotice("Lead save nahi hui. Thodi der baad try karo.");
     const data = await response.json();
-    setLeads((current) => [data.lead, ...current.filter((lead) => lead.id < 1000)]);
     const emailText = data.email?.sent ? "Mail sent to srijanartrugs90@gmail.com." : "Query saved; email service setup pending.";
     setNotice(`${emailText} Suggested vendor: ${matchedVendor?.businessName ?? "Auto match ready"}.`);
     event.currentTarget.reset();
@@ -268,42 +234,49 @@ export default function Home() {
     event.currentTarget.reset();
   }
 
-  async function updateLead(lead: Lead, status: string, customerRating = 0, vendorName?: string) {
-    const assignedVendor = vendorName ?? lead.assignedVendor;
-    const response = await fetch("/api/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: lead.id, status, assignedVendor, customerRating }) });
-    if (response.ok) {
-      const data = await response.json();
-      setLeads((current) => current.map((item) => (item.id === lead.id ? data.lead : item)));
-      setAdminMessage(`Lead #${lead.id} updated: ${status}${assignedVendor ? ` / ${assignedVendor}` : ""}`);
-    } else {
-      setAdminMessage("Lead update nahi hua. Refresh karke dobara try karo.");
+  async function trackBooking() {
+    const phone = trackingPhone.trim();
+    if (!phone) return;
+    setTrackingStatus("loading");
+    try {
+      const response = await fetch(`/api/leads?phone=${encodeURIComponent(phone)}`);
+      const data = response.ok ? await response.json() : { leads: [] };
+      const found: Lead[] = data.leads ?? [];
+      setTrackedBookings(found);
+      setTrackingStatus(found.length ? "found" : "empty");
+    } catch {
+      setTrackedBookings([]);
+      setTrackingStatus("empty");
     }
   }
 
-  function openAdmin() {
-    const allowed = adminPin === "7860";
-    setAdminOpen(allowed);
-    setAdminMessage(allowed ? "Admin unlocked. Ab leads manage kar sakte ho." : "Wrong PIN. Admin locked hai.");
+  async function loadVendorJobs() {
+    const phone = vendorPhone.trim();
+    if (!phone) return;
+    setVendorStatus("loading");
+    try {
+      const response = await fetch(`/api/leads?vendorPhone=${encodeURIComponent(phone)}`);
+      const data = response.ok ? await response.json() : { leads: [], vendor: null };
+      setVendorJobs(data.leads ?? []);
+      setVendorProfile(data.vendor ?? null);
+      setVendorStatus(data.vendor ? "found" : "not-found");
+    } catch {
+      setVendorJobs([]);
+      setVendorProfile(null);
+      setVendorStatus("not-found");
+    }
   }
 
-  function exportLeads() {
-    const headers = ["id", "name", "phone", "service", "area", "status", "assignedVendor", "timeSlot", "paymentMode", "rating"];
-    const rows = visibleLeads.map((lead) => [lead.id, lead.name, lead.phone, lead.service, lead.area, lead.status, lead.assignedVendor, lead.timeSlot, lead.paymentMode, lead.customerRating || "Pending"]);
-    const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "delhi-service-network-leads.csv";
-    link.click();
-    URL.revokeObjectURL(url);
-    setAdminMessage(`${visibleLeads.length} leads CSV export ho gayi.`);
-  }
-
-  async function copyLeadSummary(lead: Lead) {
-    const summary = `Lead #${lead.id}\nName: ${lead.name}\nPhone: ${lead.phone}\nService: ${lead.service}\nArea: ${lead.area}\nSlot: ${lead.timeSlot}\nAddress: ${lead.address}\nProblem: ${lead.problem || "Not provided"}\nVendor: ${lead.assignedVendor}\nStatus: ${lead.status}`;
-    await navigator.clipboard?.writeText(summary);
-    setAdminMessage(`Lead #${lead.id} summary copied.`);
+  async function updateVendorLead(lead: Lead, status: string) {
+    const response = await fetch("/api/leads", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: lead.id, status, assignedVendor: vendorProfile?.businessName, vendorPhone: vendorPhone.trim() }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setVendorJobs((current) => current.map((item) => (item.id === lead.id ? data.lead : item)).filter((item) => item.status !== "Cancelled"));
+    }
   }
 
   return (
@@ -389,10 +362,14 @@ export default function Home() {
           <p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Customer side</p>
           <h2 className="mt-2 text-3xl font-black">Track your booking</h2>
           <p className="mt-3 leading-7 text-[#637067]">Customer apna mobile number dal kar booking ka status, vendor aur slot dekh sakta hai.</p>
-          <input value={trackingPhone} onChange={(event) => setTrackingPhone(event.target.value)} className="mt-5 w-full rounded border border-[#ccd5ce] p-3" placeholder="Enter phone number" />
+          <div className="mt-5 flex gap-2">
+            <input value={trackingPhone} onChange={(event) => setTrackingPhone(event.target.value)} onKeyDown={(event) => event.key === "Enter" && trackBooking()} className="w-full rounded border border-[#ccd5ce] p-3" placeholder="Enter phone number" />
+            <button onClick={trackBooking} className="shrink-0 rounded bg-[#0d4f3c] px-4 py-3 text-sm font-black text-white">Check</button>
+          </div>
           <div className="mt-4 grid gap-3">
-            {!trackingPhone && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Booking status dekhne ke liye phone number enter karo.</p>}
-            {trackingPhone && trackedBookings.length === 0 && <p className="rounded bg-[#fff4df] p-4 text-sm font-bold text-[#8a4d00]">Is number par abhi booking nahi mili.</p>}
+            {trackingStatus === "idle" && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Booking status dekhne ke liye phone number enter karo.</p>}
+            {trackingStatus === "loading" && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Checking...</p>}
+            {trackingStatus === "empty" && <p className="rounded bg-[#fff4df] p-4 text-sm font-bold text-[#8a4d00]">Is number par abhi booking nahi mili.</p>}
             {trackedBookings.map((lead) => <div key={lead.id} className="rounded bg-[#f7f8f5] p-4"><div className="flex items-center justify-between gap-3"><strong>{lead.service}</strong><span className="rounded bg-[#0d4f3c] px-3 py-1 text-xs font-black text-white">{lead.status}</span></div><p className="mt-2 text-sm text-[#637067]">{lead.packageName} - {lead.timeSlot}</p><p className="text-sm text-[#637067]">Vendor: {lead.assignedVendor}</p></div>)}
           </div>
         </div>
@@ -401,12 +378,16 @@ export default function Home() {
           <p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Vendor side</p>
           <h2 className="mt-2 text-3xl font-black">Accept and manage leads</h2>
           <p className="mt-3 leading-7 text-[#637067]">Vendor WhatsApp number se apne matching leads dekh sakta hai aur accept/reject kar sakta hai.</p>
-          <input value={vendorPhone} onChange={(event) => setVendorPhone(event.target.value)} className="mt-5 w-full rounded border border-[#ccd5ce] p-3" placeholder="Vendor phone, try 9876500000" />
+          <div className="mt-5 flex gap-2">
+            <input value={vendorPhone} onChange={(event) => setVendorPhone(event.target.value)} onKeyDown={(event) => event.key === "Enter" && loadVendorJobs()} className="w-full rounded border border-[#ccd5ce] p-3" placeholder="Vendor phone, try 9876500000" />
+            <button onClick={loadVendorJobs} className="shrink-0 rounded bg-[#0d4f3c] px-4 py-3 text-sm font-black text-white">Check</button>
+          </div>
           <div className="mt-4 grid gap-3">
-            {!vendorPhone && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Vendor leads dekhne ke liye registered WhatsApp number enter karo.</p>}
-            {vendorPhone && !vendorProfile && <p className="rounded bg-[#fff4df] p-4 text-sm font-bold text-[#8a4d00]">Vendor profile nahi mili. Pehle vendor form submit karo.</p>}
-            {vendorPhone && vendorProfile && vendorJobs.length === 0 && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Abhi matching lead available nahi hai.</p>}
-            {vendorJobs.map((lead) => <div key={lead.id} className="rounded bg-[#f7f8f5] p-4"><div className="flex items-center justify-between gap-3"><strong>{lead.service}</strong><span className="text-sm font-bold text-[#637067]">{lead.area}</span></div><p className="mt-2 text-sm text-[#637067]">{lead.packageName} - {lead.timeSlot}</p><p className="text-sm text-[#637067]">{lead.problem || "Customer details after accept"}</p><div className="mt-3 flex flex-wrap gap-2"><button onClick={() => updateLead(lead, "Accepted", 0, vendorProfile?.businessName)} className="rounded bg-[#0d4f3c] px-4 py-2 text-sm font-black text-white">Accept</button><button onClick={() => updateLead(lead, "On the way", 0, vendorProfile?.businessName)} className="rounded bg-[#eef3ec] px-4 py-2 text-sm font-black text-[#0d4f3c]">On the way</button><button onClick={() => updateLead(lead, "Cancelled", 0, vendorProfile?.businessName)} className="rounded bg-[#fff4df] px-4 py-2 text-sm font-black text-[#8a4d00]">Reject</button></div></div>)}
+            {vendorStatus === "idle" && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Vendor leads dekhne ke liye registered WhatsApp number enter karo.</p>}
+            {vendorStatus === "loading" && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Checking...</p>}
+            {vendorStatus === "not-found" && <p className="rounded bg-[#fff4df] p-4 text-sm font-bold text-[#8a4d00]">Vendor profile nahi mili. Pehle vendor form submit karo.</p>}
+            {vendorStatus === "found" && vendorJobs.length === 0 && <p className="rounded bg-[#f7f8f5] p-4 text-sm font-bold text-[#637067]">Abhi matching lead available nahi hai.</p>}
+            {vendorJobs.map((lead) => <div key={lead.id} className="rounded bg-[#f7f8f5] p-4"><div className="flex items-center justify-between gap-3"><strong>{lead.service}</strong><span className="text-sm font-bold text-[#637067]">{lead.area}</span></div><p className="mt-2 text-sm text-[#637067]">{lead.packageName} - {lead.timeSlot}</p><p className="text-sm text-[#637067]">{lead.problem || "Customer details after accept"}</p><div className="mt-3 flex flex-wrap gap-2"><button onClick={() => updateVendorLead(lead, "Accepted")} className="rounded bg-[#0d4f3c] px-4 py-2 text-sm font-black text-white">Accept</button><button onClick={() => updateVendorLead(lead, "On the way")} className="rounded bg-[#eef3ec] px-4 py-2 text-sm font-black text-[#0d4f3c]">On the way</button><button onClick={() => updateVendorLead(lead, "Cancelled")} className="rounded bg-[#fff4df] px-4 py-2 text-sm font-black text-[#8a4d00]">Reject</button></div></div>)}
           </div>
         </div>
       </section>
