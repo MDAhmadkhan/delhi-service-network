@@ -1,12 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type Lead = { id: number; name: string; phone: string; service: string; packageName: string; area: string; address: string; timeSlot: string; paymentMode: string; problem: string; status: string; assignedVendor: string; customerRating: number };
 type Vendor = { id: number; businessName: string; phone: string; service: string; areas: string; status: string; rating: number };
 
-const adminPin = "7860";
 const statuses = ["New", "Assigned", "Accepted", "On the way", "Completed", "Cancelled"];
+const csvInjectionPrefixRegex = /^[=+\-@]/;
+
+function csvSafe(value: string | number) {
+  const text = String(value);
+  return csvInjectionPrefixRegex.test(text) ? `'${text}` : text;
+}
 const services = [
   "AC Repair", "RO Service", "Laptop Repair", "Mobile Repair", "Electrician", "Plumber", "Home Cleaning", "CCTV Install",
   "Washing Machine Repair", "Refrigerator Repair", "Microwave Repair", "Geyser Repair", "Chimney Repair", "Inverter Battery",
@@ -45,6 +51,7 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time admin data fetch right after unlock, no external subscription
     if (unlocked) loadData().catch(() => setMessage("Data load nahi hua. Refresh karke try karo."));
   }, [unlocked]);
 
@@ -65,13 +72,27 @@ export default function AdminPage() {
     ["Cancelled", leads.filter((lead) => lead.status === "Cancelled").length],
   ];
 
-  function login() {
-    if (pin === adminPin) {
+  async function login() {
+    setMessage("Checking PIN...");
+    const response = await fetch("/api/admin/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin }),
+    });
+    if (response.ok) {
       setUnlocked(true);
       setMessage("Admin unlocked. Lead command center ready.");
     } else {
-      setMessage("Wrong PIN. Access denied.");
+      const data = await response.json().catch(() => ({}) as { error?: string });
+      setMessage(data.error ?? "Wrong PIN. Access denied.");
     }
+  }
+
+  async function logout() {
+    await fetch("/api/admin/session", { method: "DELETE" });
+    setUnlocked(false);
+    setPin("");
+    setMessage("Admin locked.");
   }
 
   async function updateLead(lead: Lead, status: string, customerRating = lead.customerRating, assignedVendor = lead.assignedVendor) {
@@ -89,7 +110,7 @@ export default function AdminPage() {
   function exportCsv() {
     const headers = ["id", "name", "phone", "service", "area", "status", "vendor", "slot", "payment", "rating"];
     const rows = visibleLeads.map((lead) => [lead.id, lead.name, lead.phone, lead.service, lead.area, lead.status, lead.assignedVendor, lead.timeSlot, lead.paymentMode, lead.customerRating || "Pending"]);
-    const csv = [headers, ...rows].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")).join("\n");
+    const csv = [headers, ...rows].map((row) => row.map((value) => `"${csvSafe(value).replaceAll('"', '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = url;
@@ -109,11 +130,11 @@ export default function AdminPage() {
     <main className="min-h-screen bg-[#f3f5f1] text-[#161816]">
       <header className="border-b border-[#dfe4dc] bg-[#101411] text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-          <a href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <img src="/logo-dsn.svg" alt="" className="h-11 w-11 rounded" />
             <span><strong className="block">Delhi Service Network</strong><span className="text-xs text-white/60">Private admin panel</span></span>
-          </a>
-          <a href="/" className="rounded border border-white/20 px-4 py-2 text-sm font-black">Back to Website</a>
+          </Link>
+          <Link href="/" className="rounded border border-white/20 px-4 py-2 text-sm font-black">Back to Website</Link>
         </div>
       </header>
 
@@ -132,7 +153,7 @@ export default function AdminPage() {
         <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
             <div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Operations</p><h1 className="mt-2 text-4xl font-black">Lead Command Center</h1><p className="mt-3 max-w-2xl leading-7 text-[#637067]">Search, assign, call, WhatsApp, update status, rate and export all leads from one private workspace.</p></div>
-            <div className="flex flex-wrap gap-2"><button onClick={loadData} className="rounded bg-[#161816] px-4 py-3 text-sm font-black text-white">Refresh</button><button onClick={exportCsv} className="rounded bg-[#0d4f3c] px-4 py-3 text-sm font-black text-white">Export CSV</button><button onClick={() => { setUnlocked(false); setPin(""); setMessage("Admin locked."); }} className="rounded border border-[#161816] px-4 py-3 text-sm font-black">Lock</button></div>
+            <div className="flex flex-wrap gap-2"><button onClick={loadData} className="rounded bg-[#161816] px-4 py-3 text-sm font-black text-white">Refresh</button><button onClick={exportCsv} className="rounded bg-[#0d4f3c] px-4 py-3 text-sm font-black text-white">Export CSV</button><button onClick={logout} className="rounded border border-[#161816] px-4 py-3 text-sm font-black">Lock</button></div>
           </div>
           <p className="mt-4 rounded bg-[#eef3ec] p-3 text-sm font-bold text-[#4d5a51]">{message}</p>
 
