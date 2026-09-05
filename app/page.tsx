@@ -165,6 +165,7 @@ export default function Home() {
   const [vendors, setVendors] = useState<Vendor[]>(seedVendors);
   const [notice, setNotice] = useState("System ready. Query save hogi aur srijanartrugs90@gmail.com par mail forward hoga.");
   const [serviceQuery, setServiceQuery] = useState("");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const [trackingPhone, setTrackingPhone] = useState("");
   const [trackedBookings, setTrackedBookings] = useState<Lead[]>([]);
@@ -288,8 +289,28 @@ export default function Home() {
             <span><strong className="block text-sm uppercase">Delhi Service Network</strong><span className="block text-xs text-[#637067]">Local service lead platform</span></span>
           </a>
           <nav className="hidden gap-5 text-sm font-bold text-[#4c574e] md:flex"><a href="#services">Services</a><a href="#book">Book</a><a href="#vendors">Vendors</a><a href="#support">Support</a></nav>
-          <a href="#book" className="rounded bg-[#f29d35] px-4 py-2 text-sm font-black text-[#17120b]">Book Now</a>
+          <div className="flex items-center gap-2">
+            <a href="#book" className="rounded bg-[#f29d35] px-4 py-2 text-sm font-black text-[#17120b]">Book Now</a>
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((open) => !open)}
+              aria-expanded={mobileNavOpen}
+              aria-controls="mobile-nav"
+              aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+              className="rounded border border-[#dfe4dc] p-2 md:hidden"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="#161816" strokeWidth="1.8" strokeLinecap="round" /></svg>
+            </button>
+          </div>
         </div>
+        {mobileNavOpen && (
+          <nav id="mobile-nav" className="flex flex-col border-t border-[#dfe4dc] bg-[#f7f8f5] px-4 py-3 text-sm font-bold text-[#4c574e] md:hidden">
+            <a href="#services" onClick={() => setMobileNavOpen(false)} className="py-2">Services</a>
+            <a href="#book" onClick={() => setMobileNavOpen(false)} className="py-2">Book</a>
+            <a href="#vendors" onClick={() => setMobileNavOpen(false)} className="py-2">Vendors</a>
+            <a href="#support" onClick={() => setMobileNavOpen(false)} className="py-2">Support</a>
+          </nav>
+        )}
       </header>
 
       <section id="top" className="relative overflow-hidden border-b border-[#dfe4dc]">
@@ -309,7 +330,7 @@ export default function Home() {
 
       <section className="border-b border-[#dfe4dc] bg-white">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:grid-cols-4 sm:px-6">
-          {["Choose package", "Pick slot", "Vendor accepts", "Track & rate"].map((step, index) => <div className="rounded border border-[#dfe4dc] p-4" key={step}><p className="text-sm font-black text-[#f29d35]">Step {index + 1}</p><h3 className="mt-2 font-black">{step}</h3></div>)}
+          {["Choose package", "Pick slot", "Vendor accepts", "Track & rate"].map((step, index) => <div className="rounded border border-[#dfe4dc] p-4" key={step}><p className="text-sm font-black text-[#8a4d00]">Step {index + 1}</p><h3 className="mt-2 font-black">{step}</h3></div>)}
         </div>
       </section>
 
@@ -338,15 +359,15 @@ export default function Home() {
       <section id="services" className="border-y border-[#dfe4dc] bg-[#eef3ec]">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-sm font-black uppercase tracking-wide text-[#0d4f3c]">Services</p><h2 className="mt-2 text-3xl font-black">High-demand categories for Delhi</h2></div><input value={serviceQuery} onChange={(event) => setServiceQuery(event.target.value)} className="rounded border border-[#ccd5ce] bg-white p-3 sm:w-72" placeholder="Search service" /></div>
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{filteredServices.map(([name, copy, time]) => <button key={name} onClick={() => setSelectedService(name)} className="min-h-40 rounded border border-[#dfe4dc] bg-white p-4 text-left hover:border-[#0d4f3c]"><p className="text-xs font-black uppercase text-[#f29d35]">{time}</p><h3 className="mt-3 text-xl font-black">{name}</h3><p className="mt-2 text-sm leading-6 text-[#637067]">{copy}</p><p className="mt-4 text-sm font-black text-[#0d4f3c]">View packages</p></button>)}</div>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{filteredServices.map(([name, copy, time]) => <button key={name} onClick={() => setSelectedService(name)} className="min-h-40 rounded border border-[#dfe4dc] bg-white p-4 text-left hover:border-[#0d4f3c]"><p className="text-xs font-black uppercase text-[#8a4d00]">{time}</p><h3 className="mt-3 text-xl font-black">{name}</h3><p className="mt-2 text-sm leading-6 text-[#637067]">{copy}</p><p className="mt-4 text-sm font-black text-[#0d4f3c]">View packages</p></button>)}</div>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#f29d35]">Trust</p><h3 className="mt-2 text-2xl font-black">Verified professional network</h3><p className="mt-3 leading-7 text-[#637067]">KYC, skill check, area mapping, rating aur warning system se vendor quality maintain hoti hai.</p></div>
-          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#f29d35]">Warranty</p><h3 className="mt-2 text-2xl font-black">7-day service support</h3><p className="mt-3 leading-7 text-[#637067]">Pilot ke liye clear complaint window rakho, taki customer trust build ho aur repeat booking aaye.</p></div>
-          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#f29d35]">Quotes</p><h3 className="mt-2 text-2xl font-black">Best vendor shortlist</h3><p className="mt-3 leading-7 text-[#637067]">Admin same lead ko 2-3 vendors se compare karke reliable vendor assign kar sakta hai.</p></div>
+          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#8a4d00]">Trust</p><h3 className="mt-2 text-2xl font-black">Verified professional network</h3><p className="mt-3 leading-7 text-[#637067]">KYC, skill check, area mapping, rating aur warning system se vendor quality maintain hoti hai.</p></div>
+          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#8a4d00]">Warranty</p><h3 className="mt-2 text-2xl font-black">7-day service support</h3><p className="mt-3 leading-7 text-[#637067]">Pilot ke liye clear complaint window rakho, taki customer trust build ho aur repeat booking aaye.</p></div>
+          <div className="rounded border border-[#dfe4dc] bg-white p-5"><p className="text-sm font-black uppercase text-[#8a4d00]">Quotes</p><h3 className="mt-2 text-2xl font-black">Best vendor shortlist</h3><p className="mt-3 leading-7 text-[#637067]">Admin same lead ko 2-3 vendors se compare karke reliable vendor assign kar sakta hai.</p></div>
         </div>
       </section>
 
