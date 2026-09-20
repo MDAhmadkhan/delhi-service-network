@@ -15,6 +15,13 @@
       "when": 1787168039557,
       "tag": "0001_ancient_squadron_supreme",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789928437789,
+      "tag": "0002_modern_klaw",
+      "breakpoints": true
     }
   ]
 }

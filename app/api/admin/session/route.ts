@@ -8,9 +8,13 @@ export async function POST(request: Request) {
     return Response.json({ ok: false, error: "Wrong PIN. Access denied." }, { status: 401 });
   }
 
-  const headers = new Headers({ "Content-Type": "application/json" });
-  headers.append("Set-Cookie", await createAdminSessionCookie());
-  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  try {
+    const headers = new Headers({ "Content-Type": "application/json" });
+    headers.append("Set-Cookie", await createAdminSessionCookie());
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
+  } catch {
+    return Response.json({ ok: false, error: "Admin security is not configured." }, { status: 503 });
+  }
 }
 
 export async function DELETE() {

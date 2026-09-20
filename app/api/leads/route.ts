@@ -29,16 +29,50 @@ export async function GET(request: Request) {
     }
 
     if (phone) {
-      const rows = await db.select().from(leads).where(eq(leads.phone, phone)).orderBy(desc(leads.createdAt), desc(leads.id)).limit(20);
+      if (!/^\d{10}$/.test(phone)) {
+        return Response.json({ error: "Enter a valid 10 digit mobile number." }, { status: 400 });
+      }
+      const rows = await db.select({
+        id: leads.id,
+        service: leads.service,
+        packageName: leads.packageName,
+        area: leads.area,
+        timeSlot: leads.timeSlot,
+        paymentMode: leads.paymentMode,
+        status: leads.status,
+        assignedVendor: leads.assignedVendor,
+        customerRating: leads.customerRating,
+        createdAt: leads.createdAt,
+      }).from(leads).where(eq(leads.phone, phone)).orderBy(desc(leads.createdAt), desc(leads.id)).limit(20);
       return Response.json({ leads: rows });
     }
 
     if (vendorPhone) {
+      if (!/^\d{10}$/.test(vendorPhone)) {
+        return Response.json({ error: "Enter a valid 10 digit mobile number." }, { status: 400 });
+      }
       const [vendor] = await db.select().from(vendors).where(eq(vendors.phone, vendorPhone)).limit(1);
       if (!vendor) return Response.json({ leads: [], vendor: null });
       const rows = await db.select().from(leads).where(eq(leads.service, vendor.service)).orderBy(desc(leads.createdAt), desc(leads.id)).limit(50);
-      const matched = rows.filter((lead) => lead.assignedVendor === vendor.businessName || lead.assignedVendor === "Auto match ready");
-      return Response.json({ leads: matched, vendor });
+      const matched = rows
+        .filter((lead) => lead.assignedVendor === vendor.businessName || lead.assignedVendor === "Auto match ready")
+        .map((lead) => lead.assignedVendor === vendor.businessName ? lead : {
+          id: lead.id,
+          service: lead.service,
+          packageName: lead.packageName,
+          area: lead.area,
+          timeSlot: lead.timeSlot,
+          paymentMode: lead.paymentMode,
+          problem: "Customer details become available after accepting the lead.",
+          status: lead.status,
+          assignedVendor: lead.assignedVendor,
+          customerRating: 0,
+          createdAt: lead.createdAt,
+        });
+      return Response.json({
+        leads: matched,
+        vendor: { id: vendor.id, businessName: vendor.businessName, service: vendor.service, areas: vendor.areas, status: vendor.status, rating: vendor.rating },
+      });
     }
 
     return Response.json({ leads: [] });
@@ -62,6 +96,9 @@ export async function POST(request: Request) {
 
     if (!name || !phone || !service || !area || !address) {
       return Response.json({ error: "Name, phone, service, area, and address are required." }, { status: 400 });
+    }
+    if (!/^\d{10}$/.test(phone)) {
+      return Response.json({ error: "Enter a valid 10 digit mobile number." }, { status: 400 });
     }
 
     const db = getDb();

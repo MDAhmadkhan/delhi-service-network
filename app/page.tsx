@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { MarketplaceExplorer } from "./marketplace-explorer";
 
 type Lead = { id: number; name: string; phone: string; service: string; packageName: string; area: string; address: string; timeSlot: string; paymentMode: string; problem: string; status: string; assignedVendor: string; customerRating: number };
 type Vendor = { id: number; businessName: string; phone: string; service: string; areas: string; status: string; rating: number };
@@ -288,7 +289,7 @@ export default function Home() {
             <img src="/logo-dsn.svg" alt="" className="h-11 w-11 rounded" />
             <span><strong className="block text-sm uppercase">Delhi Service Network</strong><span className="block text-xs text-[#637067]">Local service lead platform</span></span>
           </a>
-          <nav className="hidden gap-5 text-sm font-bold text-[#4c574e] md:flex"><a href="#services">Services</a><a href="#book">Book</a><a href="#vendors">Vendors</a><a href="#support">Support</a></nav>
+          <nav className="hidden gap-5 text-sm font-bold text-[#4c574e] md:flex"><a href="#marketplace">Marketplace</a><a href="#services">Services</a><a href="#book">Book</a><a href="#vendors">Vendors</a><a href="#support">Support</a></nav>
           <div className="flex items-center gap-2">
             <a href="#book" className="rounded bg-[#f29d35] px-4 py-2 text-sm font-black text-[#17120b]">Book Now</a>
             <button
@@ -305,6 +306,7 @@ export default function Home() {
         </div>
         {mobileNavOpen && (
           <nav id="mobile-nav" className="flex flex-col border-t border-[#dfe4dc] bg-[#f7f8f5] px-4 py-3 text-sm font-bold text-[#4c574e] md:hidden">
+            <a href="#marketplace" onClick={() => setMobileNavOpen(false)} className="py-2">Marketplace</a>
             <a href="#services" onClick={() => setMobileNavOpen(false)} className="py-2">Services</a>
             <a href="#book" onClick={() => setMobileNavOpen(false)} className="py-2">Book</a>
             <a href="#vendors" onClick={() => setMobileNavOpen(false)} className="py-2">Vendors</a>
@@ -327,6 +329,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <MarketplaceExplorer />
 
       <section className="border-b border-[#dfe4dc] bg-white">
         <div className="mx-auto grid max-w-7xl gap-4 px-4 py-6 sm:grid-cols-4 sm:px-6">

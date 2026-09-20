@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { CategoryManager } from "./category-manager";
 
 type Lead = { id: number; name: string; phone: string; service: string; packageName: string; area: string; address: string; timeSlot: string; paymentMode: string; problem: string; status: string; assignedVendor: string; customerRating: number };
 type Vendor = { id: number; businessName: string; phone: string; service: string; areas: string; status: string; rating: number };
@@ -158,6 +159,7 @@ export default function AdminPage() {
           <p className="mt-4 rounded bg-[#eef3ec] p-3 text-sm font-bold text-[#4d5a51]">{message}</p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">{metrics.map(([label, value]) => <div key={label} className="rounded border border-[#dfe4dc] bg-white p-4"><p className="text-3xl font-black">{value}</p><p className="text-sm font-bold text-[#637067]">{label}</p></div>)}</div>
+          <CategoryManager />
           <div className="mt-5 grid gap-3 rounded bg-white p-4 ring-1 ring-[#dfe4dc] sm:grid-cols-5">{checklist.map((item) => <div key={item} className="rounded bg-[#f7f8f5] p-3 text-sm font-black">{item}</div>)}</div>
 
           <div className="mt-5 grid gap-3 rounded border border-[#dfe4dc] bg-white p-4 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
